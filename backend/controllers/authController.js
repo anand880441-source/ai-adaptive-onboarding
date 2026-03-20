@@ -1,27 +1,24 @@
 ﻿const User = require('../models/User');
 const jwt = require('jsonwebtoken');
-const bcrypt = require('bcryptjs');
 
 // Generate JWT Token
 const generateToken = (id) => {
   return jwt.sign({ id }, process.env.JWT_SECRET, {
-    expiresIn: process.env.JWT_EXPIRE || '7d'
+    expiresIn: '7d'
   });
 };
 
-// @desc    Register user
-// @route   POST /api/auth/register
-// @access  Public
+// Register user
 const register = async (req, res) => {
   try {
     const { name, email, password } = req.body;
 
-    // Check if user already exists
-    const userExists = await User.findOne({ email });
-    if (userExists) {
+    // Check if user exists
+    const existingUser = await User.findOne({ email });
+    if (existingUser) {
       return res.status(400).json({
         success: false,
-        message: 'User already exists with this email'
+        message: 'User already exists'
       });
     }
 
@@ -37,12 +34,11 @@ const register = async (req, res) => {
 
     res.status(201).json({
       success: true,
-      message: 'User registered successfully',
+      message: 'Registration successful',
       data: {
         _id: user._id,
         name: user.name,
         email: user.email,
-        role: user.role,
         token
       }
     });
@@ -50,20 +46,18 @@ const register = async (req, res) => {
     console.error('Register error:', error);
     res.status(500).json({
       success: false,
-      message: 'Error registering user',
+      message: 'Registration failed',
       error: error.message
     });
   }
 };
 
-// @desc    Login user
-// @route   POST /api/auth/login
-// @access  Public
+// Login user
 const login = async (req, res) => {
   try {
     const { email, password } = req.body;
 
-    // Check if user exists
+    // Find user
     const user = await User.findOne({ email }).select('+password');
     if (!user) {
       return res.status(401).json({
@@ -73,8 +67,8 @@ const login = async (req, res) => {
     }
 
     // Check password
-    const isPasswordMatch = await user.comparePassword(password);
-    if (!isPasswordMatch) {
+    const isMatch = await user.comparePassword(password);
+    if (!isMatch) {
       return res.status(401).json({
         success: false,
         message: 'Invalid credentials'
@@ -84,14 +78,13 @@ const login = async (req, res) => {
     // Generate token
     const token = generateToken(user._id);
 
-    res.status(200).json({
+    res.json({
       success: true,
       message: 'Login successful',
       data: {
         _id: user._id,
         name: user.name,
         email: user.email,
-        role: user.role,
         token
       }
     });
@@ -99,34 +92,28 @@ const login = async (req, res) => {
     console.error('Login error:', error);
     res.status(500).json({
       success: false,
-      message: 'Error logging in',
+      message: 'Login failed',
       error: error.message
     });
   }
 };
 
-// @desc    Get current user
-// @route   GET /api/auth/me
-// @access  Private
+// Get current user
 const getMe = async (req, res) => {
   try {
     const user = await User.findById(req.user.id);
-    
-    res.status(200).json({
+    res.json({
       success: true,
       data: {
         _id: user._id,
         name: user.name,
-        email: user.email,
-        role: user.role
+        email: user.email
       }
     });
   } catch (error) {
-    console.error('Get me error:', error);
     res.status(500).json({
       success: false,
-      message: 'Error fetching user',
-      error: error.message
+      message: 'Error fetching user'
     });
   }
 };
