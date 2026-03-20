@@ -5,6 +5,11 @@ import { motion, AnimatePresence } from 'framer-motion';
 
 const Navbar = ({ searchQuery, setSearchQuery }) => {
   const [isMenuOpen, setIsMenuOpen] = React.useState(false);
+  const [isLoggedIn, setIsLoggedIn] = React.useState(!!sessionStorage.getItem('token'));
+  const [user, setUser] = React.useState(() => {
+    const userData = sessionStorage.getItem('user');
+    return userData ? JSON.parse(userData) : null;
+  });
   const navigate = useNavigate();
   const location = useLocation();
   const isAuthPage = location.pathname === '/signin' || location.pathname === '/signup';
@@ -39,6 +44,7 @@ const Navbar = ({ searchQuery, setSearchQuery }) => {
       <div className={`nav-menu-wrapper ${isMenuOpen ? 'open' : ''}`}>
         <div className="nav-links">
           {[
+            ...(isLoggedIn ? [{ name: 'Dashboard', path: '/dashboard' }, { name: 'Upload', path: '/upload' }] : []),
             { name: 'Features', path: '/features' },
             { name: 'Solutions', path: '/solutions' },
             { name: 'Pricing', path: '/pricing' },
@@ -56,23 +62,25 @@ const Navbar = ({ searchQuery, setSearchQuery }) => {
         </div>
 
         <div className="nav-btns">
-          {!isDashboardOrUpload ? (
+          {!isLoggedIn ? (
             <>
               <NavLink to="/signin" className="nav-signin-link" onClick={() => setIsMenuOpen(false)}>Sign In</NavLink>
               <button className="btn-upload" style={{ padding: '0.6rem 1.2rem' }} onClick={() => { navigate('/signup'); setIsMenuOpen(false); }}>Get Started</button>
             </>
           ) : (
             <>
-              <div className="search-bar">
-                <Search size={18} color="var(--text-secondary)" />
-                <input 
-                  type="text" 
-                  className="search-input" 
-                  placeholder="Search resources..." 
-                  value={searchQuery}
-                  onChange={handleSearch}
-                />
-              </div>
+              {!isDashboardOrUpload && (
+                <div className="search-bar">
+                  <Search size={18} color="var(--text-secondary)" />
+                  <input 
+                    type="text" 
+                    className="search-input" 
+                    placeholder="Search resources..." 
+                    value={searchQuery}
+                    onChange={handleSearch}
+                  />
+                </div>
+              )}
               <div className="nav-icons-v2">
                 <Bell size={20} style={{ cursor: 'pointer', opacity: 0.6 }} />
                 <Settings 
@@ -81,7 +89,7 @@ const Navbar = ({ searchQuery, setSearchQuery }) => {
                   onClick={() => { navigate('/settings'); setIsMenuOpen(false); }}
                 />
                 <div className="user-avatar-nav" onClick={() => { navigate('/profile'); setIsMenuOpen(false); }} style={{ cursor: 'pointer' }}>
-                  <img src="/user_portrait_ai_1773946741731.png" alt="User" />
+                  <img src={user?.avatar || user?.photo || "/user_portrait_ai_1773946741731.png"} alt={user?.name || 'User'} />
                 </div>
               </div>
             </>
