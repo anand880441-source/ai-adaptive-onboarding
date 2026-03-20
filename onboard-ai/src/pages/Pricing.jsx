@@ -1,7 +1,9 @@
 import React from 'react';
 import { Check, X, HelpCircle, Zap, Globe, Instagram, Twitter } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 const Pricing = () => {
+  const navigate = useNavigate();
   return (
     <div className="pricing-page-v2">
       {/* Hero Section */}
@@ -28,7 +30,7 @@ const Pricing = () => {
             <li><Check size={16} className="check-icon" /> Personalized pathways</li>
             <li className="disabled"><X size={16} className="x-icon" /> Advanced Analytics</li>
           </ul>
-          <button className="price-btn-outline-v2">Start for Free</button>
+          <button className="price-btn-outline-v2" onClick={() => navigate('/signup')}>Start for Free</button>
         </div>
 
         {/* Growth Plan */}
@@ -47,7 +49,7 @@ const Pricing = () => {
             <li><Check size={16} className="check-icon" /> Advanced Analytics</li>
             <li><Check size={16} className="check-icon" /> Priority Support</li>
           </ul>
-          <button className="price-btn-primary-v2">Choose Growth</button>
+          <button className="price-btn-primary-v2" onClick={() => navigate('/signup')}>Choose Growth</button>
         </div>
 
         {/* Enterprise Plan */}
@@ -63,7 +65,7 @@ const Pricing = () => {
             <li><Check size={16} className="check-icon" /> Custom Integrations</li>
             <li><Check size={16} className="check-icon" /> SSO & Advanced Security</li>
           </ul>
-          <button className="price-btn-outline-v2">Contact Sales</button>
+          <button className="price-btn-outline-v2" onClick={() => navigate('/about')}>Contact Sales</button>
         </div>
       </section>
 
@@ -141,7 +143,7 @@ const Pricing = () => {
           <h2 className="cta-title-v2">Ready to transform your onboarding?</h2>
           <p className="cta-subtitle-v2">Join 500+ forward-thinking companies already using OnboardAI to empower their workforce.</p>
           <div className="cta-btns-v2">
-            <button className="cta-btn-white-v2">Start Free Trial</button>
+            <button className="cta-btn-white-v2" onClick={() => navigate('/signup')}>Start Free Trial</button>
             <button className="cta-btn-ghost-v2">Schedule Demo</button>
           </div>
         </div>

@@ -1,7 +1,9 @@
 import React from 'react';
 import { Zap, Infinity, Cpu, Terminal, Network, Target, Lightbulb, Users, BarChart } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 const About = () => {
+  const navigate = useNavigate();
   return (
     <div className="about-page-v3">
       {/* Hero Section */}
@@ -14,8 +16,8 @@ const About = () => {
             We build the bridges between biological intuition and digital precision.
           </p>
           <div className="about-btns-v3">
-            <button className="btn-solid-v3">Read Our Story</button>
-            <button className="btn-outline-v3">View Roadmap</button>
+            <button className="btn-solid-v3" onClick={() => navigate('/signup')}>Read Our Story</button>
+            <button className="btn-outline-v3" onClick={() => navigate('/upload')}>View Roadmap</button>
           </div>
         </div>
         <div className="about-hero-visual-v3">

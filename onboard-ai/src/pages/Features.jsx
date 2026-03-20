@@ -1,7 +1,9 @@
 import React from 'react';
 import { ArrowRight, BarChart3, Binary, BookOpen, CheckCircle2, Cpu, Globe, Layers, Layout, Lock, MessageSquare, Monitor, Network, Play, Rocket, Search, Settings, Share2, Shield, Slack, Terminal, Users, Zap, Database, FileText, Video, Globe2, Briefcase } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 const Features = () => {
+  const navigate = useNavigate();
   return (
     <div className="features-page-v2">
       {/* Hero Section */}
@@ -16,8 +18,8 @@ const Features = () => {
             Unlock the potential of your team with AI-driven skill mapping, predictive learning, and seamless enterprise integrations. Built for high-performance organizations.
           </p>
           <div className="feat-hero-btns-v2">
-            <button className="btn-upload">Start Free Trial</button>
-            <button className="btn-secondary">View Demo</button>
+            <button className="btn-upload" onClick={() => navigate('/signup')}>Start Free Trial</button>
+            <button className="btn-secondary" onClick={() => navigate('/upload')}>View Demo</button>
           </div>
         </div>
         <div className="feat-hero-image-v2">

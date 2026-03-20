@@ -80,6 +80,7 @@ const LandingPage = () => {
             whileHover={{ scale: 1.05, background: "rgba(255,255,255,0.1)" }}
             whileTap={{ scale: 0.95 }}
             className="btn-demo"
+            onClick={() => navigate('/upload')}
           >
             Interactive Demo
           </motion.button>
@@ -144,6 +145,8 @@ const LandingPage = () => {
               variants={cardVariants}
               whileHover="hover"
               className="feature-card glass-premium"
+              onClick={() => navigate('/signup')}
+              style={{ cursor: 'pointer' }}
             >
               <div className="feature-icon-v4">{feature.icon}</div>
               <h3>{feature.title}</h3>
@@ -210,6 +213,7 @@ const LandingPage = () => {
           <motion.button
             whileHover={{ x: 10 }}
             className="btn-text-v4"
+            onClick={() => navigate('/about')}
           >
             Access Research Protocol <ArrowRight size={18} />
           </motion.button>
