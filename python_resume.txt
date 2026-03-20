@@ -1,0 +1,16 @@
+﻿John Doe
+Python Developer
+Experience: 5 years
+
+SKILLS:
+- Python (Advanced)
+- Django (Intermediate)
+- PostgreSQL (Intermediate)
+- Git (Advanced)
+- REST APIs (Intermediate)
+
+EXPERIENCE:
+Senior Python Developer at TechCorp (2022-2025)
+- Developed REST APIs using Django
+- Managed PostgreSQL databases
+- Led code reviews and mentored juniors

@@ -1,0 +1,14 @@
+﻿Senior Java Developer Job Description
+
+REQUIRED SKILLS:
+- Java (Expert) - 5+ years
+- Spring Boot (Advanced)
+- Microservices Architecture
+- AWS Cloud
+- Docker & Kubernetes
+- MongoDB
+
+RESPONSIBILITIES:
+- Design and implement microservices
+- Deploy applications on AWS
+- Lead technical architecture decisions

@@ -1,0 +1,16 @@
+﻿Jane Smith
+Full Stack Developer
+Experience: 3 years
+
+SKILLS:
+- JavaScript/TypeScript (Advanced)
+- React (Intermediate)
+- Node.js (Intermediate)
+- MongoDB (Intermediate)
+- Express (Intermediate)
+
+EXPERIENCE:
+Full Stack Developer at StartupX (2023-2026)
+- Built React frontend with TypeScript
+- Created Node.js REST APIs
+- Implemented MongoDB schemas

@@ -1,0 +1,15 @@
+﻿DevOps Engineer Job Description
+
+REQUIRED SKILLS:
+- Kubernetes (Expert)
+- Docker (Advanced)
+- CI/CD Pipelines (Jenkins/GitLab)
+- AWS/Azure Cloud
+- Terraform
+- Linux Administration
+- Python/Bash Scripting
+
+RESPONSIBILITIES:
+- Manage Kubernetes clusters
+- Automate deployment pipelines
+- Infrastructure as Code
