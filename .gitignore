@@ -1,0 +1,17 @@
+# Dependencies
+node_modules/
+dist/
+dist-ssr/
+
+# Environment
+.env
+.env.local
+.env.*.local
+*.log
+
+# Project Specific
+uploads/
+backend/uploads/
+.DS_Store
+*.suo
+*.sln
