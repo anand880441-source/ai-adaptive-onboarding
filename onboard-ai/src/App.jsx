@@ -12,15 +12,18 @@ import SignIn from './pages/SignIn';
 import SignUp from './pages/SignUp';
 import Navbar from './components/Navbar';
 import BackgroundEffects from './components/BackgroundEffects';
+import Profile from './pages/Profile';
+import Settings from './pages/Settings';
 
 const AnimatedRoutes = () => {
   const location = useLocation();
+  const [searchQuery, setSearchQuery] = React.useState('');
   const isAuthPage = location.pathname === '/signin' || location.pathname === '/signup';
 
   return (
     <div className="app-container">
       <BackgroundEffects />
-      <Navbar />
+      <Navbar searchQuery={searchQuery} setSearchQuery={setSearchQuery} />
 
       <main style={isAuthPage ? { padding: 0 } : {}}>
         <AnimatePresence mode="wait">
@@ -41,7 +44,9 @@ const AnimatedRoutes = () => {
               <Route path="/signin" element={<SignIn />} />
               <Route path="/signup" element={<SignUp />} />
               <Route path="/upload" element={<UploadInterface />} />
-              <Route path="/dashboard" element={<Dashboard />} />
+              <Route path="/dashboard" element={<Dashboard searchQuery={searchQuery} />} />
+              <Route path="/profile" element={<Profile />} />
+              <Route path="/settings" element={<Settings />} />
             </Routes>
           </motion.div>
         </AnimatePresence>
