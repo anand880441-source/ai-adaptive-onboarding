@@ -1,10 +1,50 @@
-import React from 'react';
+﻿import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
 import { Zap, Github, Mail, Lock, User, ArrowRight, ShieldCheck, Cpu, Layout } from 'lucide-react';
 
 const SignUp = () => {
   const navigate = useNavigate();
+  const [formData, setFormData] = useState({
+    name: '',
+    email: '',
+    password: ''
+  });
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+
+  const handleChange = (e) => {
+    setFormData({
+      ...formData,
+      [e.target.name]: e.target.value
+    });
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    setError('');
+
+    try {
+      const response = await axios.post('http://localhost:5000/api/auth/register', {
+        name: formData.name,
+        email: formData.email,
+        password: formData.password
+      });
+
+      if (response.data.success) {
+        localStorage.setItem('token', response.data.data.token);
+        localStorage.setItem('user', JSON.stringify(response.data.data));
+        navigate('/dashboard');
+      }
+    } catch (err) {
+      setError(err.response?.data?.message || 'Registration failed');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const containerVariants = {
     hidden: { opacity: 0 },
     visible: {
@@ -21,7 +61,6 @@ const SignUp = () => {
   return (
     <div className="auth-container-v4">
       <div className="auth-split-v4">
-        {/* Left Side: Content */}
         <motion.div
           initial={{ opacity: 0, scale: 1.05 }}
           animate={{ opacity: 1, scale: 1 }}
@@ -57,23 +96,14 @@ const SignUp = () => {
             </motion.p>
 
             <div className="features-mini-grid-v4">
-              <motion.div
-                initial={{ opacity: 0, x: -20 }}
-                whileInView={{ opacity: 1, x: 0 }}
-                className="feature-mini-card-v4"
-              >
+              <motion.div className="feature-mini-card-v4">
                 <div className="feature-mini-icon-v4"><Layout size={18} /></div>
                 <div>
                   <h4>Frameworks</h4>
                   <p>Seamless integration with architecture.</p>
                 </div>
               </motion.div>
-              <motion.div
-                initial={{ opacity: 0, x: -20 }}
-                whileInView={{ opacity: 1, x: 0 }}
-                transition={{ delay: 0.1 }}
-                className="feature-mini-card-v4"
-              >
+              <motion.div className="feature-mini-card-v4">
                 <div className="feature-mini-icon-v4"><Cpu size={18} /></div>
                 <div>
                   <h4>Pricing</h4>
@@ -91,7 +121,6 @@ const SignUp = () => {
           </div>
         </motion.div>
 
-        {/* Right Side: Form */}
         <motion.div
           initial={{ opacity: 0, x: 30 }}
           animate={{ opacity: 1, x: 0 }}
@@ -126,32 +155,61 @@ const SignUp = () => {
               <p>Initialize your synthesis environment.</p>
             </motion.div>
 
-            <motion.form variants={itemVariants} className="main-auth-form-v4">
+            {error && (
+              <div style={{ color: '#ff4444', marginBottom: '1rem', padding: '0.5rem', background: 'rgba(255,68,68,0.1)', borderRadius: '8px' }}>
+                {error}
+              </div>
+            )}
+
+            <motion.form variants={itemVariants} className="main-auth-form-v4" onSubmit={handleSubmit}>
               <div className="input-group-v4">
                 <label>FULL NAME</label>
                 <div className="input-wrapper-v4">
-                  <input type="text" placeholder="Synthetix Unit 01" />
+                  <User size={16} className="input-icon-v4" />
+                  <input 
+                    type="text" 
+                    name="name"
+                    placeholder="Synthetix Unit 01"
+                    value={formData.name}
+                    onChange={handleChange}
+                    required
+                  />
                 </div>
               </div>
 
               <div className="input-group-v4">
                 <label>WORK EMAIL</label>
                 <div className="input-wrapper-v4">
-                  <input type="email" placeholder="core@neural.ai" />
+                  <Mail size={16} className="input-icon-v4" />
+                  <input 
+                    type="email" 
+                    name="email"
+                    placeholder="core@neural.ai"
+                    value={formData.email}
+                    onChange={handleChange}
+                    required
+                  />
                 </div>
               </div>
 
               <div className="input-group-v4">
                 <label>SECURE PASSWORD</label>
                 <div className="input-wrapper-v4 has-eye">
-                  <input type="password" placeholder="••••••••••••••••" />
-                  <div className="eye-icon-v4">👁️</div>
+                  <Lock size={16} className="input-icon-v4" />
+                  <input 
+                    type="password" 
+                    name="password"
+                    placeholder="••••••••••••••••"
+                    value={formData.password}
+                    onChange={handleChange}
+                    required
+                  />
                 </div>
               </div>
 
               <div className="form-options-v4">
                 <label className="checkbox-container-v4">
-                  <input type="checkbox" />
+                  <input type="checkbox" required />
                   <span className="checkmark-v4"></span>
                   I accept the <a href="#">Terms</a> and <a href="#">Security Protocol.</a>
                 </label>
@@ -162,8 +220,9 @@ const SignUp = () => {
                 whileTap={{ scale: 0.98 }}
                 type="submit"
                 className="auth-submit-btn-v4 signup-btn"
+                disabled={loading}
               >
-                Initialize Deployment <ArrowRight size={18} />
+                {loading ? 'Initializing...' : 'Initialize Deployment'} <ArrowRight size={18} />
               </motion.button>
             </motion.form>
 

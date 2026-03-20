@@ -1,10 +1,48 @@
-import React from 'react';
+﻿import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
 import { Zap, Github, Mail, Lock, ArrowRight, ShieldCheck } from 'lucide-react';
 
 const SignIn = () => {
   const navigate = useNavigate();
+  const [formData, setFormData] = useState({
+    email: '',
+    password: ''
+  });
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+
+  const handleChange = (e) => {
+    setFormData({
+      ...formData,
+      [e.target.name]: e.target.value
+    });
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    setError('');
+
+    try {
+      const response = await axios.post('http://localhost:5000/api/auth/login', {
+        email: formData.email,
+        password: formData.password
+      });
+
+      if (response.data.success) {
+        localStorage.setItem('token', response.data.data.token);
+        localStorage.setItem('user', JSON.stringify(response.data.data));
+        navigate('/dashboard');
+      }
+    } catch (err) {
+      setError(err.response?.data?.message || 'Login failed');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const containerVariants = {
     hidden: { opacity: 0 },
     visible: {
@@ -21,7 +59,6 @@ const SignIn = () => {
   return (
     <div className="auth-container-v4">
       <div className="auth-split-v4">
-        {/* Left Side: Neural Visual */}
         <motion.div
           initial={{ opacity: 0, x: -50 }}
           animate={{ opacity: 1, x: 0 }}
@@ -78,7 +115,6 @@ const SignIn = () => {
           </div>
         </motion.div>
 
-        {/* Right Side: Form */}
         <motion.div
           initial={{ opacity: 0, x: 50 }}
           animate={{ opacity: 1, x: 0 }}
@@ -96,27 +132,25 @@ const SignIn = () => {
               <p>Access your neural dashboard</p>
             </motion.div>
 
-            <motion.div variants={itemVariants} className="social-auth-v4">
-              <button className="social-btn-v4">
-                <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google" width="18" />
-                Google
-              </button>
-              <button className="social-btn-v4">
-                <Github size={18} />
-                GitHub
-              </button>
-            </motion.div>
+            {error && (
+              <div style={{ color: '#ff4444', marginBottom: '1rem', padding: '0.5rem', background: 'rgba(255,68,68,0.1)', borderRadius: '8px' }}>
+                {error}
+              </div>
+            )}
 
-            <motion.div variants={itemVariants} className="auth-divider-v4">
-              <span>NEURAL PROTOCOL</span>
-            </motion.div>
-
-            <motion.form variants={itemVariants} className="main-auth-form-v4">
+            <motion.form variants={itemVariants} className="main-auth-form-v4" onSubmit={handleSubmit}>
               <div className="input-group-v4">
                 <label>EMAIL IDENTITY</label>
                 <div className="input-wrapper-v4">
                   <Mail size={16} className="input-icon-v4" />
-                  <input type="email" placeholder="name@domain.com" />
+                  <input 
+                    type="email" 
+                    name="email"
+                    placeholder="name@domain.com"
+                    value={formData.email}
+                    onChange={handleChange}
+                    required
+                  />
                 </div>
               </div>
 
@@ -127,7 +161,14 @@ const SignIn = () => {
                 </div>
                 <div className="input-wrapper-v4">
                   <Lock size={16} className="input-icon-v4" />
-                  <input type="password" placeholder="••••••••" />
+                  <input 
+                    type="password" 
+                    name="password"
+                    placeholder="••••••••"
+                    value={formData.password}
+                    onChange={handleChange}
+                    required
+                  />
                 </div>
               </div>
 
@@ -144,8 +185,9 @@ const SignIn = () => {
                 whileTap={{ scale: 0.98 }}
                 type="submit"
                 className="auth-submit-btn-v4"
+                disabled={loading}
               >
-                Execute Sign-In
+                {loading ? 'Authenticating...' : 'Execute Sign-In'}
               </motion.button>
             </motion.form>
 
