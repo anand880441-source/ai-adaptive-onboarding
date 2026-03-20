@@ -1,16 +1,42 @@
-import React from 'react';
+﻿import React from 'react';
 import { motion } from 'framer-motion';
-import { RefreshCw, BarChart3, AlertCircle, Map, CheckCircle2, PlayCircle, Lock, Layout, Terminal, Cloud, Database, FileCode, Search, Share2, Info, Layers, TrendingUp, Target, ArrowRight } from 'lucide-react';
+import { useLocation, useNavigate } from 'react-router-dom';
+import { RefreshCw, BarChart3, AlertCircle, Map, CheckCircle2, PlayCircle, Lock, Layout, Terminal, Cloud, Database, FileCode, Search, Share2, Info, Layers, TrendingUp, Target, ArrowRight, BrainCircuit } from 'lucide-react';
 
 const Dashboard = () => {
+  const location = useLocation();
+  const navigate = useNavigate();
+  const data = location.state?.data || (localStorage.getItem('dashboardData') ? JSON.parse(localStorage.getItem('dashboardData')) : null);
+if (data) {
+  localStorage.removeItem('dashboardData');
+}
+
+  // If no data, show empty state or redirect
+  if (!data) {
+    return (
+      <div className="empty-dashboard-v4">
+        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="empty-content-v4 premium-glass">
+          <BrainCircuit size={64} color="var(--accent-purple)" strokeWidth={1} />
+          <h2>No Active Matrix Found</h2>
+          <p>Please upload your credentials to initialize the neural synthesis.</p>
+          <button className="btn-synthesis-v4 ready" onClick={() => navigate('/upload')}>
+            GO TO ARCHITECT
+          </button>
+        </motion.div>
+      </div>
+    );
+  }
+
+  const { resume, pathway } = data;
+  const resumeSkills = resume.skills || [];
+  const skillGaps = pathway.skillGaps || [];
+  const roadmap = pathway.roadmap || [];
+
   const containerVariants = {
     hidden: { opacity: 0 },
     visible: {
       opacity: 1,
-      transition: {
-        staggerChildren: 0.1,
-        delayChildren: 0.2
-      }
+      transition: { staggerChildren: 0.1, delayChildren: 0.2 }
     }
   };
 
@@ -26,10 +52,7 @@ const Dashboard = () => {
   const cardVariants = {
     hidden: { opacity: 0, scale: 0.98 },
     visible: { opacity: 1, scale: 1 },
-    hover: {
-      y: -5,
-      transition: { duration: 0.3 }
-    }
+    hover: { y: -5, transition: { duration: 0.3 } }
   };
 
   return (
@@ -45,7 +68,7 @@ const Dashboard = () => {
             <div className="pulse-dot"></div>
             SYNTHESIS ACTIVE
           </div>
-          <h1 className="dash-title-v4">Hyper-Growth <span className="onboarding-gradient">Dashboard</span></h1>
+          <h1 className="dash-title-v4">Adaptive <span className="onboarding-gradient">Roadmap</span></h1>
           <p className="dash-subtitle-v4">AI-powered neural analysis of your technical trajectory</p>
         </motion.div>
         <motion.button
@@ -53,8 +76,9 @@ const Dashboard = () => {
           whileHover={{ scale: 1.05, rotate: 180 }}
           transition={{ rotate: { duration: 0.6 } }}
           className="btn-resync-v4"
+          onClick={() => navigate('/upload')}
         >
-          <RefreshCw size={16} /> RE-SYNC NEURAL CORE
+          <RefreshCw size={16} /> NEW SYNTHESIS
         </motion.button>
       </header>
 
@@ -70,30 +94,26 @@ const Dashboard = () => {
               <div className="icon-box-v4 purple">
                 <BarChart3 size={20} />
               </div>
-              <h3>Extracted Intelligence</h3>
+              <h3>Current Core Skills</h3>
             </div>
-            <span className="badge-v4-outline">12 TOTAL NODES</span>
+            <span className="badge-v4-outline">{resumeSkills.length} TOTAL NODES</span>
           </div>
 
           <div className="skills-grid-v4">
-            {[
-              { name: 'React.js', level: 'EXPERT', icon: <Layout size={18} />, color: '#61dafb' },
-              { name: 'Python', level: 'ADVANCED', icon: <Terminal size={18} />, color: '#3776ab' },
-              { name: 'AWS', level: 'PRO', icon: <Cloud size={18} />, color: '#ff9900' },
-              { name: 'PostgreSQL', level: 'MID', icon: <Database size={18} />, color: '#336791' },
-              { name: 'TypeScript', level: 'EXPERT', icon: <FileCode size={18} />, color: '#3178c6' }
-            ].map((skill, i) => (
+            {resumeSkills.map((skill, i) => (
               <motion.div
-                key={skill.name}
+                key={i}
                 initial={{ opacity: 0, x: -10 }}
                 animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: 0.5 + (i * 0.1) }}
+                transition={{ delay: 0.5 + (i * 0.05) }}
                 className="skill-chip-v2"
               >
-                <div className="skill-icon-box" style={{ color: skill.color }}>{skill.icon}</div>
+                <div className="skill-icon-box">
+                  {skill.category === 'Technical' ? <FileCode size={18} /> : <Terminal size={18} />}
+                </div>
                 <div className="skill-info-v2">
                   <span className="skill-name-v2">{skill.name}</span>
-                  <span className="skill-level-v2">{skill.level}</span>
+                  <span className="skill-level-v2">{skill.level.toUpperCase()}</span>
                 </div>
               </motion.div>
             ))}
@@ -101,7 +121,7 @@ const Dashboard = () => {
 
           <div className="card-footer-v4">
             <Info size={14} />
-            <span>Data synthesized from High-Order Neural Repositories</span>
+            <span>Extracted from Resume Logic Matrix</span>
           </div>
         </motion.div>
 
@@ -116,37 +136,39 @@ const Dashboard = () => {
               <div className="icon-box-v4 amber">
                 <AlertCircle size={20} />
               </div>
-              <h3>Synthesis Gaps</h3>
+              <h3>Identified Skill Gaps</h3>
             </div>
-            <span className="badge-v4-outline warning">3 CRITICAL</span>
+            <span className="badge-v4-outline warning">{skillGaps.length} GAPS</span>
           </div>
 
           <div className="gap-list-v4">
-            {[
-              { name: 'Kubernetes', role: 'DevOps Orchestration', match: '98% Gap', priority: 'CRITICAL', icon: <Layers size={18} /> },
-              { name: 'TensorFlow', role: 'Neural Logic Engine', match: '85% Gap', priority: 'HIGH', icon: <Target size={18} /> },
-              { name: 'GoLang', role: 'System Concurrency', match: '72% Gap', priority: 'MID', icon: <TrendingUp size={18} /> }
-            ].map((gap, i) => (
+            {skillGaps.map((gap, i) => (
               <motion.div
-                key={gap.name}
+                key={i}
                 initial={{ opacity: 0, scale: 0.95 }}
                 animate={{ opacity: 1, scale: 1 }}
                 transition={{ delay: 0.6 + (i * 0.1) }}
                 className="gap-item-v4"
               >
                 <div className="gap-info-v4">
-                  <div className="gap-icon-v4">{gap.icon}</div>
+                  <div className="gap-icon-v4"><Target size={18} /></div>
                   <div>
                     <h4>{gap.name}</h4>
-                    <p>{gap.role}</p>
+                    <p>Current: {gap.currentLevel} â†’ Required: {gap.requiredLevel}</p>
                   </div>
                 </div>
                 <div className="gap-metrics-v4">
-                  <span className="gap-percent-v4">{gap.match}</span>
-                  <span className={`gap-priority-v4 ${gap.priority.toLowerCase()}`}>{gap.priority}</span>
+                  <span className="gap-percent-v4">GAP</span>
+                  <span className={`gap-priority-v4 critical`}>REQUIRED</span>
                 </div>
               </motion.div>
             ))}
+            {skillGaps.length === 0 && (
+              <div className="perfect-match-v4">
+                <CheckCircle2 size={32} color="var(--accent-blue)" />
+                <p>Perfect Neural Match Detected!</p>
+              </div>
+            )}
           </div>
         </motion.div>
       </div>
@@ -162,21 +184,20 @@ const Dashboard = () => {
               <Map size={24} />
             </div>
             <div>
-              <h3>Learning Path: <span className="onboarding-gradient">Cloud Systems Architect</span></h3>
+              <h3>Neural Learning Path <span className="onboarding-gradient">Structure</span></h3>
               <p>Personalized roadmap generated by Hyper-Logic Copilot</p>
             </div>
           </div>
 
           <div className="completion-stats-v4">
             <div className="stat-text-v4">
-              <span className="label">PROGRESS</span>
-              <span className="value">15%</span>
+              <span className="label">ESTIMATED EFFORT</span>
+              <span className="value">{roadmap.length * 4} HRS</span>
             </div>
             <div className="progress-track-v4">
               <motion.div
                 initial={{ width: 0 }}
-                animate={{ width: '15%' }}
-                transition={{ duration: 1.5, ease: "easeOut" }}
+                animate={{ width: '0%' }}
                 className="progress-fill-v4"
               ></motion.div>
             </div>
@@ -187,57 +208,63 @@ const Dashboard = () => {
         </div>
 
         <div className="modern-timeline-v4">
-          {[
-            { id: '01', title: 'Foundational Core Concepts', time: '2h', status: 'COMPLETED', priority: 'HIGH', icon: <CheckCircle2 size={18} /> },
-            { id: '02', title: 'Advanced Cloud Architectures', time: '4h 30m', status: 'IN PROGRESS', priority: 'CRITICAL', icon: <PlayCircle size={18} /> },
-            { id: '03', title: 'Scalability & Optimization', time: '3h', status: 'LOCKED', priority: 'MEDIUM', icon: <Lock size={18} /> }
-          ].map((node, i) => (
+          {roadmap.map((node, i) => (
             <motion.div
-              key={node.id}
+              key={i}
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ delay: i * 0.2 }}
-              className={`timeline-node-v4 ${node.status.toLowerCase().replace(' ', '-')}`}
+              className={`timeline-node-v4 in-progress`}
             >
               <div className="node-marker-v4">
-                <div className="marker-dot-v4">{node.status === 'COMPLETED' ? <CheckCircle2 size={14} /> : i + 1}</div>
+                <div className="marker-dot-v4">{i + 1}</div>
                 <div className="node-line-v4"></div>
               </div>
 
               <div className="node-card-v4 premium-glass">
                 <div className="node-content-v4">
                   <div className="node-top-v4">
-                    <span className="node-id-v4">MODULE {node.id}</span>
-                    <span className={`status-pill-v4 ${node.status.toLowerCase().replace(' ', '-')}`}>
-                      {node.status}
+                    <span className="node-id-v4">PHASE {i + 1}</span>
+                    <span className={`status-pill-v4 in-progress`}>
+                      ADAPTIVE
                     </span>
                   </div>
                   <h4>{node.title}</h4>
+                  <p className="node-desc-v4">{node.description}</p>
+
+                  {/* Reasoning Trace */}
+                  <div className="reasoning-trace-v4">
+                    <div className="trace-header">
+                      <BrainCircuit size={14} />
+                      <span>REASONING TRACE</span>
+                    </div>
+                    <p>{node.reasoning}</p>
+                  </div>
+
                   <div className="node-meta-v4">
-                    <span><RefreshCw size={12} className="spin-slow" /> {node.time} remaining</span>
-                    <span className={`priority-indicator-v4 ${node.priority.toLowerCase()}`}>
-                      {node.priority} PRIORITY
+                    <span><RefreshCw size={12} className="spin-slow" /> Grounded in Catalog</span>
+                    <span className={`priority-indicator-v4 high`}>
+                      HIGH PRIORITY
                     </span>
                   </div>
                 </div>
 
-                {node.status === 'IN PROGRESS' ? (
-                  <motion.button
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
-                    className="btn-resume-v4"
-                  >
-                    RESUME MISSION <ArrowRight size={16} />
-                  </motion.button>
-                ) : node.status === 'COMPLETED' ? (
-                  <button className="btn-secondary-v4">REVIEW PROTOCOL</button>
-                ) : (
-                  <div className="locked-msg-v4"><Lock size={14} /> COMPLETE PREVIOUS MISSION</div>
-                )}
+                <motion.button
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  className="btn-resume-v4"
+                >
+                  START MODULE <ArrowRight size={16} />
+                </motion.button>
               </div>
             </motion.div>
           ))}
+          {roadmap.length === 0 && (
+            <div className="no-roadmap-v4">
+              <p>No training modules required for this transition.</p>
+            </div>
+          )}
         </div>
       </motion.div>
     </motion.div>
@@ -245,3 +272,4 @@ const Dashboard = () => {
 };
 
 export default Dashboard;
+
