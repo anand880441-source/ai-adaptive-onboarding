@@ -1,4 +1,4 @@
-﻿import React, { useState, useEffect } from 'react';
+﻿import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
@@ -6,12 +6,6 @@ import { Zap, Github, Mail, Lock, User, ArrowRight, ShieldCheck, Cpu, Layout } f
 
 const SignUp = () => {
   const navigate = useNavigate();
-
-  React.useEffect(() => {
-    if (sessionStorage.getItem('token')) {
-      navigate('/dashboard');
-    }
-  }, [navigate]);
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -42,6 +36,8 @@ const SignUp = () => {
       if (response.data.success) {
         sessionStorage.setItem('token', response.data.data.token);
         sessionStorage.setItem('user', JSON.stringify(response.data.data));
+        window.dispatchEvent(new Event('storage'));
+        window.dispatchEvent(new Event('authChange'));
         navigate('/dashboard');
       }
     } catch (err) {
@@ -167,6 +163,30 @@ const SignUp = () => {
               </div>
             )}
 
+            {/* Social Login Buttons */}
+            <motion.div variants={itemVariants} className="social-auth-v4">
+              <a 
+                href="http://localhost:5000/api/auth/google" 
+                className="social-btn-v4 dark"
+                style={{ textDecoration: "none", display: "flex", alignItems: "center", justifyContent: "center", gap: "0.75rem", cursor: "pointer" }}
+              >
+                <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google" width="18" />
+                Google
+              </a>
+              <a 
+                href="http://localhost:5000/api/auth/github" 
+                className="social-btn-v4 dark"
+                style={{ textDecoration: "none", display: "flex", alignItems: "center", justifyContent: "center", gap: "0.75rem", cursor: "pointer" }}
+              >
+                <Github size={18} />
+                GitHub
+              </a>
+            </motion.div>
+
+            <motion.div variants={itemVariants} className="auth-divider-v4">
+              <span>OR AUTHORIZE WITH</span>
+            </motion.div>
+
             <motion.form variants={itemVariants} className="main-auth-form-v4" onSubmit={handleSubmit}>
               <div className="input-group-v4">
                 <label>FULL NAME</label>
@@ -231,21 +251,6 @@ const SignUp = () => {
                 {loading ? 'Initializing...' : 'Initialize Deployment'} <ArrowRight size={18} />
               </motion.button>
             </motion.form>
-
-            <motion.div variants={itemVariants} className="auth-divider-v4">
-              <span>OR AUTHORIZE WITH</span>
-            </motion.div>
-
-            <motion.div variants={itemVariants} className="social-auth-v4">
-              <button className="social-btn-v4 dark">
-                <Github size={18} />
-                GitHub
-              </button>
-              <button className="social-btn-v4 dark">
-                <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google" width="18" />
-                Google
-              </button>
-            </motion.div>
           </motion.div>
 
           <div className="signup-footer-v4">
