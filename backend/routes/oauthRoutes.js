@@ -2,7 +2,6 @@
 const router = express.Router();
 const passport = require('../services/oauthService');
 
-// Get frontend URL from environment variable
 const FRONTEND_URL = process.env.CLIENT_URL || 'http://localhost:5173';
 
 // Google OAuth routes
