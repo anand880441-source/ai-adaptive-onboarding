@@ -3,7 +3,10 @@ import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { Zap, Github, Mail, Lock, ArrowRight, ShieldCheck } from 'lucide-react';
-import { API_URL, AUTH_URL } from '../config';
+
+// HARDCODED PRODUCTION URLS
+const API_URL = 'https://ai-adaptive-onboarding.onrender.com/api';
+const AUTH_URL = 'https://ai-adaptive-onboarding.onrender.com';
 
 const SignIn = () => {
   const navigate = useNavigate();

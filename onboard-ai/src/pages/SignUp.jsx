@@ -1,10 +1,12 @@
-﻿import React, { useState } from "react";
-const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
-const AUTH_BASE_URL = API_BASE_URL.replace("/api", "");
+﻿import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { Zap, Github, Mail, Lock, User, ArrowRight, ShieldCheck, Cpu, Layout } from 'lucide-react';
+
+// HARDCODED PRODUCTION URLS
+const API_URL = 'https://ai-adaptive-onboarding.onrender.com/api';
+const AUTH_URL = 'https://ai-adaptive-onboarding.onrender.com';
 
 const SignUp = () => {
   const navigate = useNavigate();
@@ -29,7 +31,7 @@ const SignUp = () => {
     setError('');
 
     try {
-      const response = await axios.post('http://localhost:5000/api/auth/register', {
+      const response = await axios.post(`${API_URL}/auth/register`, {
         name: formData.name,
         email: formData.email,
         password: formData.password
@@ -165,10 +167,9 @@ const SignUp = () => {
               </div>
             )}
 
-            {/* Social Login Buttons */}
             <motion.div variants={itemVariants} className="social-auth-v4">
               <a 
-                href="https://ai-adaptive-onboarding.onrender.com/api/auth/google" 
+                href={`${AUTH_URL}/api/auth/google`}
                 className="social-btn-v4 dark"
                 style={{ textDecoration: "none", display: "flex", alignItems: "center", justifyContent: "center", gap: "0.75rem", cursor: "pointer" }}
               >
@@ -176,7 +177,7 @@ const SignUp = () => {
                 Google
               </a>
               <a 
-                href="https://ai-adaptive-onboarding.onrender.com/api/auth/github" 
+                href={`${AUTH_URL}/api/auth/github`}
                 className="social-btn-v4 dark"
                 style={{ textDecoration: "none", display: "flex", alignItems: "center", justifyContent: "center", gap: "0.75rem", cursor: "pointer" }}
               >
@@ -270,5 +271,3 @@ const SignUp = () => {
 };
 
 export default SignUp;
-
-
