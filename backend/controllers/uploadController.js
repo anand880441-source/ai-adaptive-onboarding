@@ -1,185 +1,9 @@
-const path = require('path');
+﻿const path = require('path');
 const fs = require('fs');
 const pdfParse = require('pdf-parse');
 const mammoth = require('mammoth');
-const axios = require('axios');
 
-const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
-
-const uploadFiles = async (req, res) => {
-  try {
-    console.log('📁 Files received:', req.files);
-    
-    if (!req.files || !req.files.resume || !req.files.jd) {
-      return res.status(400).json({
-        success: false,
-        message: 'Both resume and job description are required'
-      });
-    }
-
-    const resumeFile = req.files.resume[0];
-    const jdFile = req.files.jd[0];
-
-    const resumeText = await extractTextFromFile(resumeFile);
-    const jdText = await extractTextFromFile(jdFile);
-
-    console.log('📝 Resume extracted, length:', resumeText.length);
-    console.log('📝 JD extracted, length:', jdText.length);
-
-    if (!resumeText.trim()) {
-      return res.status(400).json({
-        success: false,
-        message: 'Could not extract text from resume. Please ensure the PDF is readable.'
-      });
-    }
-
-    if (!jdText.trim()) {
-      return res.status(400).json({
-        success: false,
-        message: 'Could not extract text from job description. Please ensure the file is readable.'
-      });
-    }
-
-    const geminiAnalysis = await analyzeWithGemini(resumeText, jdText);
-
-    const mockData = {
-      resume: {
-        skills: geminiAnalysis.resumeSkills,
-        fileName: resumeFile.originalname,
-        fileSize: resumeFile.size,
-        summary: geminiAnalysis.resumeSummary
-      },
-      pathway: {
-        skillGaps: geminiAnalysis.skillGaps,
-        roadmap: geminiAnalysis.roadmap
-      }
-    };
-
-    console.log('✅ Gemini analyzed:', geminiAnalysis.resumeSkills.length, 'skills found');
-
-    res.status(200).json({
-      success: true,
-      message: 'Files analyzed successfully with AI',
-      data: mockData
-    });
-
-  } catch (error) {
-    console.error('Upload error:', error);
-    res.status(500).json({
-      success: false,
-      message: 'Error processing files',
-      error: error.message
-    });
-  }
-};
-
-async function analyzeWithGemini(resumeText, jdText) {
-  const prompt = `You are an expert HR recruiter and career coach. Analyze the following resume and job description.
-
-RESUME:
-${resumeText}
-
-JOB DESCRIPTION:
-${jdText}
-
-Return a JSON response with this exact structure:
-{
-  "resumeSummary": "A brief 2-3 sentence summary of the candidate's profile based on their resume",
-  "resumeSkills": [
-    {
-      "name": "Skill Name",
-      "level": "Beginner/Intermediate/Advanced/Expert",
-      "category": "Technical/Soft/Tools/Database/DevOps/Cloud"
-    }
-  ],
-  "skillGaps": [
-    {
-      "name": "Missing/Occupational Skill",
-      "currentLevel": "Beginner/Intermediate/Advanced/Expert/none",
-      "requiredLevel": "Beginner/Intermediate/Advanced/Expert",
-      "priority": "Critical/High/Medium/Low",
-      "reason": "Brief explanation of why this skill is needed"
-    }
-  ],
-  "roadmap": [
-    {
-      "title": "Learning Module Title",
-      "description": "Detailed description of what to learn",
-      "reasoning": "AI reasoning for why this module is recommended",
-      "duration": "estimated time (e.g., '2 weeks')"
-    }
-  ]
-}
-
-Rules:
-- Extract ALL technical skills from resume (programming languages, frameworks, tools, databases, cloud platforms)
-- Extract ALL soft skills mentioned (communication, leadership, teamwork, etc.)
-- Identify skill gaps by comparing resume skills vs job requirements
-- Prioritize gaps: Critical = completely missing, High = major gap, Medium = minor gap, Low = nice to have
-- Generate 4-6 personalized learning modules that address the skill gaps
-- Be specific with skill names (e.g., "React.js" not just "React", "AWS EC2/S3" not just "AWS")
-- Level definitions: Beginner = <1 year, Intermediate = 1-3 years, Advanced = 3-5 years, Expert = 5+ years
-
-Return ONLY the JSON, no other text.`;
-
-  try {
-    const GEMINI_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`;
-    
-    const response = await axios.post(GEMINI_URL, {
-      contents: [{
-        parts: [{ text: prompt }]
-      }],
-      generationConfig: {
-        temperature: 0.3,
-        maxOutputTokens: 8192
-      }
-    }, {
-      headers: {
-        'Content-Type': 'application/json'
-      }
-    });
-
-    const responseText = response.data.candidates?.[0]?.content?.parts?.[0]?.text;
-    
-    if (!responseText) {
-      throw new Error('No response from Gemini API');
-    }
-
-    const jsonMatch = responseText.match(/\{[\s\S]*\}/);
-    
-    if (!jsonMatch) {
-      throw new Error('Could not parse Gemini response as JSON');
-    }
-
-    const analysis = JSON.parse(jsonMatch[0]);
-
-    return {
-      resumeSummary: analysis.resumeSummary || 'Professional with diverse technical skills',
-      resumeSkills: analysis.resumeSkills || [],
-      skillGaps: analysis.skillGaps || [],
-      roadmap: analysis.roadmap || []
-    };
-
-  } catch (error) {
-    console.error('Gemini API Error:', error.message);
-    console.error('Error details:', error.response?.data);
-    
-    if (error.response?.status === 403) {
-      throw new Error('Invalid Gemini API key. Please check your GEMINI_API_KEY in .env file.');
-    }
-    
-    if (error.response?.status === 429) {
-      throw new Error('Gemini rate limit exceeded. Please try again in a few minutes.');
-    }
-    
-    if (error.response?.data?.error?.message) {
-      throw new Error(`Gemini API Error: ${error.response.data.error.message}`);
-    }
-
-    throw new Error(`Gemini analysis failed: ${error.message}`);
-  }
-}
-
+// Helper function to extract text from files
 async function extractTextFromFile(file) {
   const filePath = file.path;
   const ext = path.extname(file.originalname).toLowerCase();
@@ -197,9 +21,153 @@ async function extractTextFromFile(file) {
     }
   } catch (error) {
     console.error(`Error extracting text:`, error);
-    throw error;
+    return fs.readFileSync(filePath, 'utf8');
   }
 }
+
+// Extract skills from text using keyword matching
+function extractSkillsFromText(text) {
+  const skills = [];
+  const lowerText = text.toLowerCase();
+  
+  const skillDatabase = {
+    'python': { level: 'Intermediate', category: 'Technical' },
+    'java': { level: 'Intermediate', category: 'Technical' },
+    'javascript': { level: 'Intermediate', category: 'Technical' },
+    'react': { level: 'Intermediate', category: 'Technical' },
+    'node.js': { level: 'Intermediate', category: 'Technical' },
+    'nodejs': { level: 'Intermediate', category: 'Technical' },
+    'django': { level: 'Intermediate', category: 'Technical' },
+    'spring': { level: 'Intermediate', category: 'Technical' },
+    'spring boot': { level: 'Intermediate', category: 'Technical' },
+    'aws': { level: 'Intermediate', category: 'Cloud' },
+    'docker': { level: 'Intermediate', category: 'DevOps' },
+    'kubernetes': { level: 'Intermediate', category: 'DevOps' },
+    'mongodb': { level: 'Intermediate', category: 'Database' },
+    'postgresql': { level: 'Intermediate', category: 'Database' },
+    'typescript': { level: 'Intermediate', category: 'Technical' },
+    'git': { level: 'Intermediate', category: 'Tools' },
+    'communication': { level: 'Advanced', category: 'Soft' }
+  };
+  
+  for (const [skill, info] of Object.entries(skillDatabase)) {
+    if (lowerText.includes(skill)) {
+      skills.push({
+        name: skill.charAt(0).toUpperCase() + skill.slice(1),
+        level: info.level,
+        category: info.category
+      });
+    }
+  }
+  
+  // Add default if none found
+  if (skills.length === 0) {
+    skills.push(
+      { name: 'JavaScript', level: 'Intermediate', category: 'Technical' },
+      { name: 'Communication', level: 'Advanced', category: 'Soft' }
+    );
+  }
+  
+  return skills.slice(0, 10);
+}
+
+// Generate skill gaps
+function identifyGaps(resumeSkills, jdText) {
+  const gaps = [];
+  const resumeSkillNames = resumeSkills.map(s => s.name.toLowerCase());
+  const lowerJd = jdText.toLowerCase();
+  
+  const commonRequiredSkills = ['python', 'java', 'javascript', 'react', 'aws', 'docker', 'kubernetes', 'typescript', 'node.js'];
+  
+  commonRequiredSkills.forEach(skill => {
+    if (lowerJd.includes(skill) && !resumeSkillNames.includes(skill)) {
+      gaps.push({
+        name: skill.charAt(0).toUpperCase() + skill.slice(1),
+        currentLevel: 'none',
+        requiredLevel: 'Intermediate',
+        priority: 'High',
+        reason: `${skill.charAt(0).toUpperCase() + skill.slice(1)} is required for this role`
+      });
+    }
+  });
+  
+  return gaps.slice(0, 5);
+}
+
+// Generate roadmap
+function generateRoadmap(gaps) {
+  if (gaps.length === 0) {
+    return [{
+      title: 'Advanced Professional Development',
+      description: 'Enhance your existing skills with advanced concepts and best practices',
+      reasoning: 'You already have the required skills - focus on deepening expertise',
+      duration: '4 weeks'
+    }];
+  }
+  
+  return gaps.map((gap, index) => ({
+    title: `${gap.name} Mastery`,
+    description: `Learn ${gap.name} from fundamentals to advanced concepts`,
+    reasoning: gap.reason,
+    duration: index === 0 ? '2 weeks' : index === 1 ? '3 weeks' : '4 weeks'
+  }));
+}
+
+// Main upload handler
+const uploadFiles = async (req, res) => {
+  try {
+    console.log('📁 Files received:', req.files);
+    
+    if (!req.files || !req.files.resume || !req.files.jd) {
+      return res.status(400).json({
+        success: false,
+        message: 'Both resume and job description are required'
+      });
+    }
+
+    const resumeFile = req.files.resume[0];
+    const jdFile = req.files.jd[0];
+
+    // Extract text
+    const resumeText = await extractTextFromFile(resumeFile);
+    const jdText = await extractTextFromFile(jdFile);
+
+    console.log('✅ Text extracted - Resume length:', resumeText.length, 'JD length:', jdText.length);
+
+    // Extract skills
+    const resumeSkills = extractSkillsFromText(resumeText);
+    const skillGaps = identifyGaps(resumeSkills, jdText);
+    const roadmap = generateRoadmap(skillGaps);
+
+    const responseData = {
+      resume: {
+        skills: resumeSkills,
+        fileName: resumeFile.originalname,
+        summary: `Professional skilled in ${resumeSkills.map(s => s.name).join(', ')}`
+      },
+      pathway: {
+        skillGaps: skillGaps,
+        roadmap: roadmap
+      }
+    };
+
+    console.log('✅ Sending response with', resumeSkills.length, 'skills,', skillGaps.length, 'gaps');
+    
+    res.status(200).json({
+      success: true,
+      message: 'Files processed successfully',
+      data: responseData
+    });
+
+  } catch (error) {
+    console.error('Upload error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Error processing files',
+      error: error.message
+    });
+  }
+};
 
 module.exports = {
   uploadFiles
