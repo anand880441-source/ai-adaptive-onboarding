@@ -1,4 +1,4 @@
-﻿import React, { useState, useEffect } from 'react';
+﻿import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
@@ -6,12 +6,6 @@ import { Zap, Github, Mail, Lock, ArrowRight, ShieldCheck } from 'lucide-react';
 
 const SignIn = () => {
   const navigate = useNavigate();
-
-  React.useEffect(() => {
-    if (sessionStorage.getItem('token')) {
-      navigate('/dashboard');
-    }
-  }, [navigate]);
   const [formData, setFormData] = useState({
     email: '',
     password: ''
@@ -40,6 +34,8 @@ const SignIn = () => {
       if (response.data.success) {
         sessionStorage.setItem('token', response.data.data.token);
         sessionStorage.setItem('user', JSON.stringify(response.data.data));
+        window.dispatchEvent(new Event('storage'));
+        window.dispatchEvent(new Event('authChange'));
         navigate('/dashboard');
       }
     } catch (err) {
@@ -65,6 +61,7 @@ const SignIn = () => {
   return (
     <div className="auth-container-v4">
       <div className="auth-split-v4">
+        {/* Left Side: Neural Visual */}
         <motion.div
           initial={{ opacity: 0, x: -50 }}
           animate={{ opacity: 1, x: 0 }}
@@ -98,7 +95,7 @@ const SignIn = () => {
               transition={{ delay: 0.6, duration: 0.8 }}
               className="hero-subtitle-v4"
             >
-              Step into the intersection of high-order logic and human intuition. Your synthesis journey begins here.
+              Step into the intersection of high-order logic and human intuition.
             </motion.p>
 
             <motion.div
@@ -121,11 +118,12 @@ const SignIn = () => {
           </div>
         </motion.div>
 
+        {/* Right Side: Form */}
         <motion.div
           initial={{ opacity: 0, x: 50 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.8, ease: "easeOut" }}
-          className="auth-form-side-v4"
+          className="auth-form-side-v4 signin-form-side"
         >
           <motion.div
             variants={containerVariants}
@@ -136,6 +134,30 @@ const SignIn = () => {
             <motion.div variants={itemVariants} className="form-header-v4">
               <h2>Sign In</h2>
               <p>Access your neural dashboard</p>
+            </motion.div>
+
+            {/* Social Login Buttons */}
+            <motion.div variants={itemVariants} className="social-auth-v4">
+              <a 
+                href="http://localhost:5000/api/auth/google" 
+                className="social-btn-v4"
+                style={{ textDecoration: "none", display: "flex", alignItems: "center", justifyContent: "center", gap: "0.75rem", cursor: "pointer" }}
+              >
+                <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google" width="18" />
+                Google
+              </a>
+              <a 
+                href="http://localhost:5000/api/auth/github" 
+                className="social-btn-v4"
+                style={{ textDecoration: "none", display: "flex", alignItems: "center", justifyContent: "center", gap: "0.75rem", cursor: "pointer" }}
+              >
+                <Github size={18} />
+                GitHub
+              </a>
+            </motion.div>
+
+            <motion.div variants={itemVariants} className="auth-divider-v4">
+              <span>OR NEURAL PROTOCOL</span>
             </motion.div>
 
             {error && (
