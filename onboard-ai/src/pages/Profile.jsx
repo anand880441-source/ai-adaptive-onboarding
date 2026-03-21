@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from 'react';
+﻿import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { User, Mail, Shield, Brain, Star, TrendingUp, Edit3, Save, X } from 'lucide-react';
-import axios from 'axios';
+import api from '../services/api';
 
 const Profile = () => {
   const [user, setUser] = useState(null);
@@ -15,7 +15,7 @@ const Profile = () => {
 
   const fetchProfile = async () => {
     try {
-      const response = await axios.get('http://localhost:5000/api/user/profile');
+      const response = await api.get('/api/user/profile');
       if (response.data.success) {
         setUser(response.data.data);
         setEditedUser(response.data.data);
@@ -29,7 +29,7 @@ const Profile = () => {
 
   const handleUpdate = async () => {
     try {
-      const response = await axios.put('http://localhost:5000/api/user/profile', editedUser);
+      const response = await api.put('/api/user/profile', editedUser);
       if (response.data.success) {
         setUser(response.data.data);
         setIsEditing(false);
@@ -68,7 +68,7 @@ const Profile = () => {
               )}
               <div className="status-pill-v2">ACTIVE ARCHITECT</div>
             </div>
-            <p className="profile-role">{user.role}</p>
+            <p className="profile-role">{user.role || 'Developer'}</p>
           </div>
           <div className="profile-actions-v2">
             {isEditing ? (
@@ -87,21 +87,21 @@ const Profile = () => {
             <div className="stat-item-v2">
               <Star className="stat-icon-v2" />
               <div>
-                <h3>{user.stats.nodesCompleted}</h3>
+                <h3>{user.stats?.nodesCompleted || 0}</h3>
                 <p>NODES COMPLETED</p>
               </div>
             </div>
             <div className="stat-item-v2">
               <TrendingUp className="stat-icon-v2" />
               <div>
-                <h3>{user.stats.synthesisRate}</h3>
+                <h3>{user.stats?.synthesisRate || '0%'}</h3>
                 <p>SYNTHESIS RATE</p>
               </div>
             </div>
             <div className="stat-item-v2">
               <Brain className="stat-icon-v2" />
               <div>
-                <h3>{user.stats.activePaths}</h3>
+                <h3>{user.stats?.activePaths || 0}</h3>
                 <p>ACTIVE PATHS</p>
               </div>
             </div>
@@ -116,7 +116,7 @@ const Profile = () => {
               </div>
               <div className="detail-item-v2">
                 <Shield size={18} />
-                <span>Security Protocol: {user.settings.privacyLevel}</span>
+                <span>Security Protocol: High</span>
               </div>
             </div>
           </div>
