@@ -1,7 +1,7 @@
 ﻿import React, { useState, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import api from '../services/api';
 import { FileText, Briefcase, CloudUpload, ClipboardList, CheckCircle2, RotateCw, X, Sparkles, AlertCircle } from 'lucide-react';
 
 const UploadInterface = () => {
@@ -45,7 +45,7 @@ const UploadInterface = () => {
 
     try {
       setUploadProgress(30);
-      const response = await axios.post('http://localhost:5000/api/upload', formData, {
+      const response = await api.post('/api/upload', formData, {
         headers: { 'Content-Type': 'multipart/form-data' },
         onUploadProgress: (progressEvent) => {
           if (progressEvent.total) {
@@ -62,15 +62,9 @@ const UploadInterface = () => {
       // Store data in localStorage as backup
       localStorage.setItem('dashboardData', JSON.stringify(response.data.data));
       
-      // Use both methods to ensure redirect works
       setTimeout(() => {
         setUploadProgress(100);
-        // Try React Router navigation first
         navigate('/dashboard', { state: { data: response.data.data } });
-        // Fallback to window location in case React Router fails
-        setTimeout(() => {
-          window.location.href = '/dashboard';
-        }, 100);
       }, 1000);
 
     } catch (err) {
