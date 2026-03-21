@@ -139,7 +139,7 @@ const SignIn = () => {
             {/* Social Login Buttons */}
             <motion.div variants={itemVariants} className="social-auth-v4">
               <a 
-                href="http://localhost:5000/api/auth/google" 
+                href="https://ai-adaptive-onboarding.onrender.com/api/auth/google" 
                 className="social-btn-v4"
                 style={{ textDecoration: "none", display: "flex", alignItems: "center", justifyContent: "center", gap: "0.75rem", cursor: "pointer" }}
               >
@@ -147,7 +147,7 @@ const SignIn = () => {
                 Google
               </a>
               <a 
-                href="http://localhost:5000/api/auth/github" 
+                href="https://ai-adaptive-onboarding.onrender.com/api/auth/github" 
                 className="social-btn-v4"
                 style={{ textDecoration: "none", display: "flex", alignItems: "center", justifyContent: "center", gap: "0.75rem", cursor: "pointer" }}
               >
@@ -240,3 +240,4 @@ const SignIn = () => {
 };
 
 export default SignIn;
+
