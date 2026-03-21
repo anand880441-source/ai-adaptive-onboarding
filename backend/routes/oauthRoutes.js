@@ -2,6 +2,9 @@
 const router = express.Router();
 const passport = require('../services/oauthService');
 
+// Get frontend URL from environment variable
+const FRONTEND_URL = process.env.CLIENT_URL || 'http://localhost:5173';
+
 // Google OAuth routes
 router.get('/google',
   passport.authenticate('google', { scope: ['profile', 'email'] })
@@ -17,7 +20,7 @@ router.get('/google/callback',
       email: req.user.email,
       avatar: req.user.avatar
     }));
-    res.redirect(`http://localhost:5173/oauth-callback?token=${token}&user=${user}`);
+    res.redirect(`${FRONTEND_URL}/oauth-callback?token=${token}&user=${user}`);
   }
 );
 
@@ -36,7 +39,7 @@ router.get('/github/callback',
       email: req.user.email,
       avatar: req.user.avatar
     }));
-    res.redirect(`http://localhost:5173/oauth-callback?token=${token}&user=${user}`);
+    res.redirect(`${FRONTEND_URL}/oauth-callback?token=${token}&user=${user}`);
   }
 );
 
