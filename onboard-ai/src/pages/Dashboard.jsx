@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from 'react';
+﻿import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { useLocation, useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import api from '../services/api';
 import { RefreshCw, BarChart3, AlertCircle, Map, CheckCircle2, PlayCircle, Lock, Layout, Terminal, Cloud, Database, FileCode, Search, Share2, Info, Layers, TrendingUp, Target, ArrowRight, BrainCircuit, ChevronDown, BarChart2, Clock } from 'lucide-react';
 
 const Dashboard = ({ searchQuery = "" }) => {
@@ -33,7 +33,7 @@ const Dashboard = ({ searchQuery = "" }) => {
     const token = sessionStorage.getItem('token');
     if (token) {
       try {
-        const response = await axios.get('http://localhost:5000/api/user/progress', {
+        const response = await api.get('/api/user/progress', {
           headers: { Authorization: `Bearer ${token}` }
         });
         
@@ -58,7 +58,7 @@ const Dashboard = ({ searchQuery = "" }) => {
     if (!token || !data) return;
     
     try {
-      await axios.post('http://localhost:5000/api/user/roadmap', {
+      await api.post('/api/user/roadmap', {
         resumeSummary: data.resume?.summary,
         skills: data.resume?.skills,
         skillGaps: data.pathway?.skillGaps,
@@ -561,3 +561,4 @@ const Dashboard = ({ searchQuery = "" }) => {
 };
 
 export default Dashboard;
+
