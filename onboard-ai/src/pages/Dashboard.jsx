@@ -33,7 +33,7 @@ const Dashboard = ({ searchQuery = "" }) => {
     const token = sessionStorage.getItem('token');
     if (token) {
       try {
-        const response = await api.get('/api/user/progress', {
+        const response = await api.get('/user/progress', {
           headers: { Authorization: `Bearer ${token}` }
         });
         
@@ -58,7 +58,7 @@ const Dashboard = ({ searchQuery = "" }) => {
     if (!token || !data) return;
     
     try {
-      await api.post('/api/user/roadmap', {
+      await api.post('/user/roadmap', {
         resumeSummary: data.resume?.summary,
         skills: data.resume?.skills,
         skillGaps: data.pathway?.skillGaps,
@@ -561,4 +561,5 @@ const Dashboard = ({ searchQuery = "" }) => {
 };
 
 export default Dashboard;
+
 
