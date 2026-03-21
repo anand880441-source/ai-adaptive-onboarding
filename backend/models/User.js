@@ -1,25 +1,5 @@
-const mongoose = require('mongoose');
+﻿const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
-
-const moduleProgressSchema = new mongoose.Schema({
-  moduleId: { type: String, required: true },
-  title: { type: String, required: true },
-  status: { 
-    type: String, 
-    enum: ['not-started', 'in-progress', 'completed'],
-    default: 'not-started'
-  },
-  progress: { type: Number, default: 0, min: 0, max: 100 },
-  completedAt: { type: Date },
-  startedAt: { type: Date }
-});
-
-const learningSessionSchema = new mongoose.Schema({
-  moduleId: { type: String, required: true },
-  startedAt: { type: Date, default: Date.now },
-  lastActiveAt: { type: Date, default: Date.now },
-  timeSpent: { type: Number, default: 0 }
-});
 
 const userSchema = new mongoose.Schema({
   name: {
@@ -34,15 +14,36 @@ const userSchema = new mongoose.Schema({
   },
   password: {
     type: String,
-    required: true
+    required: function() {
+      return !this.provider; // Password not required for OAuth users
+    }
+  },
+  avatar: {
+    type: String,
+    default: ''
+  },
+  provider: {
+    type: String,
+    enum: ['google', 'github', null],
+    default: null
+  },
+  providerId: {
+    type: String,
+    default: ''
   },
   stats: {
     nodesCompleted: { type: Number, default: 0 },
     synthesisRate: { type: Number, default: 0 },
     activePaths: { type: Number, default: 0 }
   },
-  moduleProgress: [moduleProgressSchema],
-  learningSessions: [learningSessionSchema],
+  moduleProgress: [{
+    moduleId: String,
+    title: String,
+    status: { type: String, enum: ['not-started', 'in-progress', 'completed'], default: 'not-started' },
+    progress: { type: Number, default: 0 },
+    completedAt: Date,
+    startedAt: Date
+  }],
   currentRoadmap: {
     resumeSummary: String,
     skills: [{
@@ -64,19 +65,25 @@ const userSchema = new mongoose.Schema({
       reasoning: String,
       duration: String
     }]
+  },
+  settings: {
+    notifications: { type: Boolean, default: true },
+    darkMode: { type: Boolean, default: true },
+    privacyLevel: { type: String, default: 'High' }
   }
 }, {
   timestamps: true
 });
 
 userSchema.pre('save', async function() {
-  if (this.isModified('password')) {
+  if (this.isModified('password') && this.password) {
     const salt = await bcrypt.genSalt(10);
     this.password = await bcrypt.hash(this.password, salt);
   }
 });
 
 userSchema.methods.comparePassword = async function(candidatePassword) {
+  if (!this.password) return false;
   return await bcrypt.compare(candidatePassword, this.password);
 };
 
@@ -84,13 +91,8 @@ userSchema.methods.calculateCompletionPercentage = function() {
   if (!this.currentRoadmap?.roadmap || this.currentRoadmap.roadmap.length === 0) {
     return 0;
   }
-  
   const completedModules = this.moduleProgress.filter(m => m.status === 'completed').length;
   return Math.round((completedModules / this.currentRoadmap.roadmap.length) * 100);
-};
-
-userSchema.methods.getModuleProgress = function(moduleId) {
-  return this.moduleProgress.find(m => m.moduleId === moduleId);
 };
 
 module.exports = mongoose.model('User', userSchema);
