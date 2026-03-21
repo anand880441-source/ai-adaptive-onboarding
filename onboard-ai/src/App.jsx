@@ -1,4 +1,4 @@
-import React from 'react';
+﻿import React from 'react';
 import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import LandingPage from './pages/LandingPage';
@@ -16,6 +16,7 @@ import Profile from './pages/Profile';
 import Settings from './pages/Settings';
 import SkillAnalysis from './pages/SkillAnalysis';
 import StudyModule from './pages/StudyModule';
+import OAuthCallback from './pages/OAuthCallback';
 
 const AnimatedRoutes = () => {
   const location = useLocation();
@@ -51,7 +52,7 @@ const AnimatedRoutes = () => {
               <Route path="/profile" element={<Profile />} />
               <Route path="/settings" element={<Settings />} />
               <Route path="/skill-analysis" element={<SkillAnalysis />} />
-              <Route path="/study/:moduleId" element={<StudyModule />} />
+              <Route path="/study/:moduleId" element={<StudyModule />} />`n              <Route path="/oauth-callback" element={<OAuthCallback />} />
             </Routes>
           </motion.div>
         </AnimatePresence>
@@ -69,3 +70,4 @@ function App() {
 }
 
 export default App;
+
